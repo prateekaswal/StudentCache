@@ -42,14 +42,14 @@ public class Processing {
 	}	
 
 	private RemoteCacheManager cacheManager;
-    private RemoteCache<String, Object> studentCache;
-    private String rrollKey = "";
+    private RemoteCache<Long, Object> studentCache;
+    private Long rrollKey;
 	 
     ConfigurationBuilder builder = new ConfigurationBuilder();
 	
 	public void getIFSCFromCache(Exchange exchange) throws SQLException{
 		System.out.println("inside java method");
-		rrollKey=exchange.getIn().getHeader("key",String.class);
+		rrollKey=exchange.getIn().getHeader("key",Long.class);
 		String server=exchange.getIn().getHeader("hotrod_conn",String.class);
 		String user=exchange.getIn().getHeader("hotrod_user",String.class);
 		String pass=exchange.getIn().getHeader("hotrod_pass",String.class);
@@ -63,12 +63,12 @@ public class Processing {
 	        if(!studentCache.containsKey(rrollKey)){		
 		Connection connection = null;
 		ResultSet rs = null;
-		PreparedStatement getState = null;
+		PreparedStatement getStudentDetails = null;
 
                 connection = dataSource.getConnection();
-				getState = connection.prepareStatement("select * from results_12 where rroll=?");
-				getState.setString(1, rrollKey.toString());
-		        rs = getState.executeQuery();
+				getStudentDetails = connection.prepareStatement("select * from results_12 where rroll=?");
+				getStudentDetails.setLong(1, rrollKey);
+		        rs = getStudentDetails.executeQuery();
                 System.out.println("after DB query is executed");
 				while (rs.next()) {
                     System.out.println("from DB"+rs.getString("rroll"));
@@ -153,12 +153,12 @@ public class Processing {
 					studentlist.put("nse",rs.getString("nse"));
 					studentlist.put("nchmct",rs.getString("nchmct"));
 					studentlist.put("mobile",rs.getString("mobile"));
-                    rrollKey=rs.getString("rroll");
+                    rrollKey=rs.getLong("rroll");
                     studentCache.put(rrollKey, studentlist);
 	            }
 				rs.close();
 				connection.close();
-				getState.close();
+				getStudentDetails.close();
 				Map<String,String> studentDetails =  (Map<String, String>) studentCache.get(rrollKey);
 				exchange.getIn().setBody(studentDetails);
 			}

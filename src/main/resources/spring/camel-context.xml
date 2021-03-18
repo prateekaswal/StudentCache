@@ -26,7 +26,7 @@
 		
         <restConfiguration 
             component="jetty" 
-            host="${url}" 
+            host="0.0.0.0" 
             port="9502"
             bindingMode="json"
             enableCORS="true" contextPath="/api/v1">
@@ -39,7 +39,7 @@
             <post uri="/getResultsCache">
                 <route id="get_Results_route">
                     <doTry>
-                            <log message="Hit Received at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS} ${body}"/>
+                            <log message="Hit Received at ${date:now:yyyy-MM-dd'T'HH:mm:ss:SSS} ${body[rollno]}"/>
                             <setHeader headerName="key"><simple>${body[rollno]}</simple></setHeader>
 		                    <setHeader headerName="hotrod_conn"><simple>{{hotrod_conn}}</simple></setHeader>
                             <setHeader headerName="hotrod_user"><simple>{{hotrod_user}}</simple></setHeader>
